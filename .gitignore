@@ -1,0 +1,43 @@
+# Build artifacts
+.build/
+DerivedData/
+*.xcodeproj
+*.xcworkspace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Sensitive data - personal locations
+locations.json
+
+# Runtime data
+*.log
+sync_state.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
