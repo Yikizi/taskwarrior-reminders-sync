@@ -61,7 +61,7 @@ task 1 done
 
 ```bash
 # Clone the repo (anywhere you like)
-git clone https://github.com/YOUR_USERNAME/taskwarrior-reminders-sync.git
+git clone https://github.com/Yikizi/taskwarrior-reminders-sync.git
 cd taskwarrior-reminders-sync
 
 # Run installer
