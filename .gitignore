@@ -24,6 +24,7 @@ locations.json
 # Runtime data
 *.log
 sync_state.json
+.sync.lock
 
 # macOS
 .DS_Store

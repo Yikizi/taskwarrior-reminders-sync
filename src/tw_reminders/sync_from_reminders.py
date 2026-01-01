@@ -185,24 +185,39 @@ def check_deleted_reminders(
 
 def main():
     """Main sync entry point."""
-    print(f"[{datetime.now()}] Starting Reminders → TW sync...")
+    import fcntl
 
-    tw = TaskWarrior(data_location=CONFIG["taskwarrior_data"])
-    state = SyncState()
+    lock_file = Path(CONFIG["sync_state_file"]).parent / ".sync.lock"
+    lock_file.parent.mkdir(parents=True, exist_ok=True)
 
-    reminders = fetch_reminders()
-    print(f"Fetched {len(reminders)} reminders")
-
-    for reminder in reminders:
+    # Use file lock to prevent concurrent syncs
+    with open(lock_file, "w") as f:
         try:
-            sync_reminder_to_task(reminder, tw, state)
-        except Exception as e:
-            print(f"Error syncing reminder {reminder.get('title')}: {e}", file=sys.stderr)
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print(f"[{datetime.now()}] Another sync in progress, skipping")
+            return
 
-    check_deleted_reminders(reminders, tw, state)
-    state.update_last_sync()
+        print(f"[{datetime.now()}] Starting Reminders → TW sync...")
 
-    print(f"[{datetime.now()}] Sync complete")
+        tw = TaskWarrior(data_location=CONFIG["taskwarrior_data"])
+        state = SyncState()
+
+        reminders = fetch_reminders()
+        print(f"Fetched {len(reminders)} reminders")
+
+        for reminder in reminders:
+            try:
+                sync_reminder_to_task(reminder, tw, state)
+            except Exception as e:
+                print(f"Error syncing reminder {reminder.get('title')}: {e}", file=sys.stderr)
+
+        check_deleted_reminders(reminders, tw, state)
+        state.update_last_sync()
+
+        print(f"[{datetime.now()}] Sync complete")
+
+        fcntl.flock(f, fcntl.LOCK_UN)
 
 
 if __name__ == "__main__":
