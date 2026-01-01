@@ -15,10 +15,16 @@ echo "Building Swift binary..."
 
 # 2. Set up Python environment
 echo "Setting up Python environment..."
-if [ ! -d "$SCRIPT_DIR/.venv" ]; then
-    python3 -m venv "$SCRIPT_DIR/.venv"
+if command -v uv &> /dev/null; then
+    # Prefer uv (faster, no pip needed)
+    (cd "$SCRIPT_DIR" && uv sync)
+else
+    # Fallback to standard venv + pip
+    if [ ! -d "$SCRIPT_DIR/.venv" ]; then
+        python3 -m venv "$SCRIPT_DIR/.venv"
+    fi
+    "$SCRIPT_DIR/.venv/bin/pip" install -q -e "$SCRIPT_DIR"
 fi
-"$SCRIPT_DIR/.venv/bin/pip" install -q -e "$SCRIPT_DIR"
 
 # 3. Create data directory
 echo "Creating data directory..."
